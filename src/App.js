@@ -15,7 +15,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 //  All fetch() calls to Node.js backend → MongoDB
 //  Replace localStorage with real HTTP requests
 // ════════════════════════════════════════════════════════════
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "/api";
 
 // Helper: get JWT token saved after login
 const getToken = () => localStorage.getItem("ss_token");
@@ -255,9 +255,8 @@ function LoginModal({ onClose, onLogin, onSwitchSignup }) {
   const handleLogin = async () => {
     setErr(""); setLoading(true);
     try {
-      // ── Real API Call → Node.js → MongoDB ──
-      const data = await API.login(email, password);
-      saveSession(data.token);   // save JWT to localStorage
+      const data = await API.login(email, pass);   // ← use 'pass' not 'password'
+      saveSession(data.token);
       onLogin(data);
       onClose();
     } catch (e) {
@@ -267,17 +266,6 @@ function LoginModal({ onClose, onLogin, onSwitchSignup }) {
     }
   };
 
-  // fix: use pass not password
-  const handleLoginFixed = async () => {
-    setErr(""); setLoading(true);
-    try {
-      const data = await API.login(email, pass);
-      saveSession(data.token);
-      onLogin(data);
-      onClose();
-    } catch (e) { setErr(e.message); } finally { setLoading(false); }
-  };
-
   return (
     <Modal onClose={onClose}>
       <h5 className="modal-title-ss">Welcome Back 👋</h5>
@@ -285,23 +273,19 @@ function LoginModal({ onClose, onLogin, onSwitchSignup }) {
       <div className="input-group-ss">
         <label>Email</label>
         <input className="input-ss" type="email" placeholder="student@college.edu"
-          value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLoginFixed()} />
+          value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} />
       </div>
       <div className="input-group-ss">
         <label>Password</label>
         <input className="input-ss" type="password" placeholder="••••••••"
-          value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLoginFixed()} />
+          value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} />
       </div>
-      <button className="btn-ss-primary" style={{width:"100%",marginTop:8}} onClick={handleLoginFixed} disabled={loading}>
+      <button className="btn-ss-primary" style={{width:"100%",marginTop:8}} onClick={handleLogin} disabled={loading}>
         {loading ? <span className="loading-spin"/> : "Login"}
       </button>
       <p style={{textAlign:"center",marginTop:14,fontSize:".85rem",color:"var(--muted)"}}>
         No account? <span style={{color:"var(--primary)",cursor:"pointer",fontWeight:600}} onClick={onSwitchSignup}>Sign Up</span>
       </p>
-      <div style={{marginTop:16,padding:"12px",background:"var(--bg-alt)",borderRadius:"var(--radius-sm)",fontSize:".78rem",color:"var(--muted)"}}>
-        <strong>⚡ Make sure backend is running:</strong><br/>
-        <code>cd backend → npm install → npm run dev</code>
-      </div>
     </Modal>
   );
 }

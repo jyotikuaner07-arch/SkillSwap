@@ -1,8 +1,3 @@
-// ============================================================
-//  models/User.js
-//  MongoDB Schema using Mongoose ORM
-//  Module 8: MongoDB — Create and Manage MongoDB
-// ============================================================
 
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
